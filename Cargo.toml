@@ -1,0 +1,35 @@
+[package]
+name = "robojules"
+description = "A PR differ for moonlight extensions"
+authors = ["NotNite <hi@notnite.com>"]
+license = "MIT"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# UI
+eframe = { version = "0.29.1", features = ["default_fonts"] }
+egui = "0.29.1"
+anstyle-parse = "0.2.6"
+
+# Backend
+anyhow = "1.0.92"
+tokio = { version = "1.41.0", features = ["full"] }
+flume = "0.11.1"
+
+# Logging
+log = "0.4.22"
+env_logger = "0.11.5"
+
+# Fetching PRs
+dotenvy = "0.15.7"
+octocrab = "0.41.2"
+http-body-util = "0.1.2"
+
+# Parsing logs, .zips, .asars, etc.
+regex = "1.11.1"
+zip = "2.2.0"
+binrw = "0.14.1"
+serde = { version = "1.0.214", features = ["derive"] }
+serde_json = "1.0.132"
+sha2 = "0.10.8"
