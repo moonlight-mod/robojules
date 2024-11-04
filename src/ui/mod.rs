@@ -176,13 +176,11 @@ impl eframe::App for App {
                 });
 
             egui::CentralPanel::default().show(ctx, |ui| {
-                egui::ScrollArea::vertical()
-                    .auto_shrink(false)
-                    .show(ui, |ui| {
-                        if let Some(diff) = &self.state.diff {
-                            components::ansi(ui, diff);
-                        }
-                    });
+                egui::ScrollArea::both().auto_shrink(false).show(ui, |ui| {
+                    if let Some(diff) = &self.state.diff {
+                        components::ansi(ui, diff);
+                    }
+                });
             });
         } else {
             egui::CentralPanel::default().show(ctx, |ui| {

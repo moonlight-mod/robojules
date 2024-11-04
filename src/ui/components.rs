@@ -28,10 +28,13 @@ fn draw_dir(
                 };
 
                 ui.push_id(full_path.clone(), |ui| {
+                    let old_wrap_mode = ui.style().wrap_mode;
+                    ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Extend);
                     if ui.selectable_label(selected, state_name.clone()).clicked() {
                         *current_file = Some(full_path);
                         modified = true;
                     }
+                    ui.style_mut().wrap_mode = old_wrap_mode;
                 });
             }
 
@@ -134,7 +137,9 @@ impl Perform for AnsiDrawer {
                     self.current_color = Some(egui::Color32::BLUE);
                 }
                 //_ => unimplemented!("CSI {:?} {:?}", params, intermediates),
-                _ => {}
+                _ => {
+                    println!("CSI {:?} {:?}", params, c);
+                }
             }
         }
     }
@@ -175,7 +180,7 @@ impl AnsiDrawer {
 
     fn draw(mut self, ui: &mut egui::Ui) -> egui::Response {
         self.draw_text();
-        ui.add(egui::Label::new(self.layout_job))
+        ui.add(egui::Label::new(self.layout_job).wrap_mode(egui::TextWrapMode::Extend))
     }
 }
 

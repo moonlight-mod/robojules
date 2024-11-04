@@ -21,14 +21,6 @@ impl<T> Default for AsyncState<T> {
 }
 
 impl<T> AsyncState<T> {
-    pub fn new(value: Option<T>) -> Self {
-        Self {
-            value,
-            working: false,
-            error: None,
-        }
-    }
-
     pub fn set(&mut self, result: LogicResult<T>) {
         match result {
             Ok(value) => {

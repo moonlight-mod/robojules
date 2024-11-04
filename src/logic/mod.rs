@@ -24,6 +24,12 @@ impl From<anyhow::Error> for LogicError {
     }
 }
 
+impl From<String> for LogicError {
+    fn from(err: String) -> Self {
+        Self(err)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum LogicCommand {
     GetPullRequest(u64),

@@ -186,13 +186,24 @@ pub async fn calculate_diff(old_dir: &Path, new_dir: &Path) -> anyhow::Result<Di
 }
 
 pub async fn get_diff_string(old: &Path, new: &Path) -> LogicResult<String> {
+    if !old.exists() {
+        return tokio::fs::read_to_string(new)
+            .await
+            .map_err(|e| e.to_string().into());
+    }
+
+    if !new.exists() {
+        return Ok("(deleted file)".to_string());
+    }
+
+    let width = std::env::var("DFT_WIDTH").unwrap_or_else(|_| "240".to_string());
     let stdout = Command::new("difft")
         .arg(old)
         .arg(new)
-        //.arg("--display")
-        //.arg("inline")
         .env("DFT_COLOR", "always")
-        .env("DFT_WIDTH", "240")
+        .env("DFT_WIDTH", width)
+        .env("DFT_SYNTAX_HIGHLIGHT", "on")
+        .env("DFT_STRIP_CR", "on")
         .output()
         .await
         .context("Failed to run difft")?
