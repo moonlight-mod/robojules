@@ -7,7 +7,6 @@ mod state;
 
 #[derive(Debug)]
 pub struct App {
-    // Don't know how to clean up these skips lol
     tx: flume::Sender<LogicCommand>,
     rx: flume::Receiver<LogicResponse>,
     state: AppState,
@@ -180,7 +179,6 @@ impl eframe::App for App {
                 egui::ScrollArea::vertical()
                     .auto_shrink(false)
                     .show(ui, |ui| {
-                        // TODO: ansi color
                         if let Some(diff) = &self.state.diff {
                             components::ansi(ui, diff);
                         }
