@@ -74,13 +74,13 @@ pub async fn copy_recursive(src: PathBuf, dest: PathBuf) -> std::io::Result<()> 
 pub async fn checkout_copy(src: PathBuf, dest: PathBuf, commit: &str) -> anyhow::Result<()> {
     log::debug!("Checking out commit {}", commit);
 
-    tokio::process::Command::new("git")
-        .arg("checkout")
-        .arg(commit)
-        .current_dir(&src)
-        .output()
-        .await
-        .context("Failed to checkout commit")?;
+    let mut cmd = tokio::process::Command::new("git");
+    let cmd = cmd.arg("checkout").arg(commit).current_dir(&src);
+    #[cfg(target_os = "windows")]
+    let cmd = cmd.creation_flags(super::CREATE_NO_WINDOW);
+
+    let _ = cmd.output().await.context("Failed to checkout commit")?;
+
     copy_recursive(src, dest)
         .await
         .context("Failed to copy files")
@@ -150,13 +150,15 @@ pub async fn download_extension(
 
     // --branch doesn't work with commit hashes, so let's clone the entire repo and copy files
     log::debug!("Cloning repository {}", ext.repository);
-    tokio::process::Command::new("git")
+    let mut cmd = tokio::process::Command::new("git");
+    let cmd = cmd
         .arg("clone")
         .arg(ext.repository.clone())
-        .arg(&source_dir)
-        .output()
-        .await
-        .context("Failed to clone repository")?;
+        .arg(&source_dir);
+    #[cfg(target_os = "windows")]
+    let cmd = cmd.creation_flags(super::CREATE_NO_WINDOW);
+
+    let _ = cmd.output().await.context("Failed to clone repository")?;
 
     checkout_copy(source_dir.clone(), new_source_dir.clone(), &ext.new_commit)
         .await

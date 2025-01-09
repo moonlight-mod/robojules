@@ -8,6 +8,8 @@ pub mod diff;
 pub mod download;
 pub mod pr;
 
+pub const CREATE_NO_WINDOW: u32 = 0x08000000;
+
 #[derive(Clone, Debug)]
 pub struct LogicError(String);
 pub type LogicResult<T> = Result<T, LogicError>;

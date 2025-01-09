@@ -197,17 +197,19 @@ pub async fn get_diff_string(old: &Path, new: &Path) -> LogicResult<String> {
     }
 
     let width = std::env::var("DFT_WIDTH").unwrap_or_else(|_| "240".to_string());
-    let stdout = Command::new("difft")
+
+    let mut cmd = Command::new("difft");
+    let cmd = cmd
         .arg(old)
         .arg(new)
         .env("DFT_COLOR", "always")
         .env("DFT_WIDTH", width)
         .env("DFT_SYNTAX_HIGHLIGHT", "on")
-        .env("DFT_STRIP_CR", "on")
-        .output()
-        .await
-        .context("Failed to run difft")?
-        .stdout;
+        .env("DFT_STRIP_CR", "on");
+    #[cfg(target_os = "windows")]
+    let cmd = cmd.creation_flags(super::CREATE_NO_WINDOW);
+
+    let stdout = cmd.output().await.context("Failed to run difft")?.stdout;
 
     Ok(String::from_utf8(stdout).map_err(|_| anyhow::anyhow!("Invalid UTF-8 in diff"))?)
 }
