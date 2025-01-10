@@ -50,9 +50,7 @@ pub enum LogicResponse {
 }
 
 fn build_octocrab() -> anyhow::Result<octocrab::Octocrab> {
-    let token = std::env::var("GITHUB_TOKEN").context("No GITHUB_TOKEN env var")?;
     octocrab::Octocrab::builder()
-        .personal_token(token)
         .build()
         .context("Failed to build Octocrab client")
 }

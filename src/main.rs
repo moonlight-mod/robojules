@@ -4,7 +4,6 @@ pub mod logic;
 mod ui;
 
 fn main() -> eframe::Result {
-    dotenvy::dotenv().ok();
     env_logger::init();
 
     let native_options = eframe::NativeOptions {
