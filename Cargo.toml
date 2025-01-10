@@ -20,6 +20,8 @@ flume = "0.11.1"
 # Logging
 log = "0.4.22"
 env_logger = "0.11.5"
+
+# Fetching PRs
 octocrab = "0.41.2"
 http-body-util = "0.1.2"
 

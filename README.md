@@ -5,7 +5,6 @@ A PR differ for [moonlight extensions](https://github.com/moonlight-mod/extensio
 ## Requirements
 
 - Git and [difftastic](https://github.com/Wilfred/difftastic) must both be in your PATH environment variable.
-- `GITHUB_TOKEN` environment variable set to a personal access token. RoboJules can load `.env` files.
 
 ## How it works
 
