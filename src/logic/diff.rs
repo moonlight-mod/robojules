@@ -205,7 +205,8 @@ pub async fn get_diff_string(old: &Path, new: &Path) -> LogicResult<String> {
         .env("DFT_COLOR", "always")
         .env("DFT_WIDTH", width)
         .env("DFT_SYNTAX_HIGHLIGHT", "on")
-        .env("DFT_STRIP_CR", "on");
+        .env("DFT_STRIP_CR", "on")
+        .env("DFT_DISPLAY", "side-by-side-show-both");
     #[cfg(target_os = "windows")]
     let cmd = cmd.creation_flags(super::CREATE_NO_WINDOW);
 
