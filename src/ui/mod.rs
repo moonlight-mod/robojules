@@ -127,30 +127,37 @@ impl App {
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let mut delete_diffed_extension = false;
         if let Some(diffed_extension) = &self.state.diffed_extension.value {
             let width = ctx.available_rect().width();
             egui::SidePanel::left("sidebar")
                 .resizable(true)
                 .max_width(width * 0.3)
                 .show(ctx, |ui| {
-                    ui.horizontal(|ui| {
-                        let source_clicked = ui
-                            .selectable_value(
-                                &mut self.state.view_type,
-                                state::ViewType::Source,
-                                "Source",
-                            )
-                            .clicked();
-                        let asar_clicked = ui
-                            .selectable_value(
-                                &mut self.state.view_type,
-                                state::ViewType::Asar,
-                                ".asar",
-                            )
-                            .clicked();
-                        if source_clicked || asar_clicked {
-                            self.state.selected_file = None;
+                    ui.vertical(|ui| {
+                        if ui.button("Reset").clicked() {
+                            delete_diffed_extension = true;
                         }
+
+                        ui.horizontal(|ui| {
+                            let source_clicked = ui
+                                .selectable_value(
+                                    &mut self.state.view_type,
+                                    state::ViewType::Source,
+                                    "Source",
+                                )
+                                .clicked();
+                            let asar_clicked = ui
+                                .selectable_value(
+                                    &mut self.state.view_type,
+                                    state::ViewType::Asar,
+                                    ".asar",
+                                )
+                                .clicked();
+                            if source_clicked || asar_clicked {
+                                self.state.selected_file = None;
+                            }
+                        });
                     });
 
                     let diff = if self.state.view_type == ViewType::Source {
@@ -190,6 +197,10 @@ impl eframe::App for App {
                         self.draw_pr_select(ui);
                     });
             });
+        }
+
+        if delete_diffed_extension {
+            self.state.diffed_extension.clear();
         }
 
         // Since we're receiving messages on the UI thread, we need to be
