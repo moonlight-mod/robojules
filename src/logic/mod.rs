@@ -1,3 +1,4 @@
+use crate::logic::diff::FileDiff;
 use anyhow::Context;
 use diff::{DiffedExtension, ModifiedExtension, PullRequestUpdate};
 use std::path::PathBuf;
@@ -46,7 +47,7 @@ pub enum LogicCommand {
 pub enum LogicResponse {
     PullRequest(LogicResult<PullRequestUpdate>),
     ExtensionDownloadComplete(LogicResult<DiffedExtension>),
-    FileDiff(LogicResult<String>),
+    FileDiff(LogicResult<FileDiff>),
 }
 
 fn build_octocrab() -> anyhow::Result<octocrab::Octocrab> {
@@ -79,8 +80,7 @@ async fn app_logic_thread_inner(
             }
 
             LogicCommand::DiffFile(old, new) => {
-                let res = diff::get_diff_string(&old, &new).await;
-                log::debug!("Diffed files: {:?}", res);
+                let res = diff::calculate_file_diff(&old, &new).await;
                 tx.send(LogicResponse::FileDiff(res))?;
             }
         }

@@ -2,13 +2,7 @@
 
 A PR differ for [moonlight extensions](https://github.com/moonlight-mod/extensions).
 
-## Requirements
-
-- Git and [difftastic](https://github.com/Wilfred/difftastic) must both be in your PATH environment variable.
-
 ## How it works
-
-RoboJules only works with extensions that have already been submitted once. New extensions should be reviewed manually.
 
 - Input the ID of the pull request (e.g. [#56](https://github.com/moonlight-mod/extensions/pull/56)).
 - RoboJules downloads a few things:
@@ -20,3 +14,7 @@ RoboJules only works with extensions that have already been submitted once. New 
 - RoboJules extracts the `.asar` files.
 - RoboJules diffs the source repository and extracted `.asar` folders using difftastic.
 - You, the user, read those diffs and verify it's safe.
+
+## Building
+
+`cargo build`. Requires Git to be installed at runtime.

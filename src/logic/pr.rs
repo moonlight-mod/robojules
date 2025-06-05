@@ -6,7 +6,7 @@ use crate::logic::download::get_url;
 use anyhow::Context;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct ExtensionManifest {
     repository: String,
     commit: String,
@@ -49,10 +49,17 @@ pub async fn get_pull_request(
 
             let old = get_url(client, &old)
                 .await
-                .context("Failed to download old file")?;
-            let old = std::str::from_utf8(&old).context("Failed to parse old file")?;
-            let old = serde_json::from_str::<ExtensionManifest>(old)
-                .context("Failed to parse old manifest")?;
+                .context("Failed to download old file")
+                .and_then(|s| {
+                    std::str::from_utf8(&s)
+                        .map(|s| s.to_string())
+                        .context("Failed to parse old file")
+                })
+                .and_then(|s| {
+                    serde_json::from_str::<ExtensionManifest>(&s)
+                        .context("Failed to parse old manifest")
+                })
+                .ok();
 
             let new = get_url(client, &new)
                 .await
@@ -61,10 +68,17 @@ pub async fn get_pull_request(
             let new = serde_json::from_str::<ExtensionManifest>(new)
                 .context("Failed to parse new manifest")?;
 
+            if let Some(old) = &old {
+                if old.repository != new.repository {
+                    log::warn!("Repository for {} changed, skipping...", ext_id);
+                    continue;
+                }
+            }
+
             extensions.push(ModifiedExtension {
                 id: ext_id.to_string(),
-                repository: old.repository,
-                old_commit: old.commit,
+                repository: new.repository,
+                old_commit: old.map(|m| m.commit),
                 new_commit: new.commit,
             });
         }

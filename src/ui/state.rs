@@ -1,5 +1,5 @@
 use crate::logic::{
-    diff::{DiffedExtension, PullRequestUpdate},
+    diff::{DiffedExtension, FileDiff, PullRequestUpdate},
     LogicError, LogicResult,
 };
 
@@ -64,5 +64,5 @@ pub struct AppState {
 
     pub view_type: ViewType,
     pub selected_file: Option<String>,
-    pub diff: Option<String>,
+    pub diff: Option<FileDiff>,
 }

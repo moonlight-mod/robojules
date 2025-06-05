@@ -144,7 +144,7 @@ pub async fn download_extension(
         .await
         .context("Failed to extract current .asar")?;
 
-    let asar_diff = diff::calculate_diff(&old_asar_dir, &new_asar_dir)
+    let asar_diff = diff::calculate_folder_diff(&old_asar_dir, &new_asar_dir)
         .await
         .context("Failed to diff .asar")?;
 
@@ -163,14 +163,17 @@ pub async fn download_extension(
     checkout_copy(source_dir.clone(), new_source_dir.clone(), &ext.new_commit)
         .await
         .context("Failed to checkout new commit")?;
-    checkout_copy(source_dir.clone(), old_source_dir.clone(), &ext.old_commit)
-        .await
-        .context("Failed to checkout old commit")?;
-    let source_diff = diff::calculate_diff(&old_source_dir, &new_source_dir)
+    if let Some(old_commit) = &ext.old_commit {
+        checkout_copy(source_dir.clone(), old_source_dir.clone(), &old_commit)
+            .await
+            .context("Failed to checkout old commit")?;
+    }
+    let source_diff = diff::calculate_folder_diff(&old_source_dir, &new_source_dir)
         .await
         .context("Failed to diff source")?;
 
     Ok(DiffedExtension {
+        id: ext.id.clone(),
         source_diff,
         asar_diff,
     })

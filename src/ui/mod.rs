@@ -1,4 +1,5 @@
 use crate::logic::{app_logic_thread, LogicCommand, LogicResponse};
+use egui::{Frame, Theme};
 use state::{AppState, ViewType};
 use std::time::Duration;
 
@@ -14,7 +15,7 @@ pub struct App {
 
 impl App {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        cc.egui_ctx.set_theme(Theme::Dark);
 
         let (main_tx, logic_rx) = flume::unbounded::<LogicCommand>();
         let (logic_tx, main_rx) = flume::unbounded::<LogicResponse>();
@@ -117,7 +118,11 @@ impl App {
             if let Some(ext_id) = &self.state.selected_extension {
                 if let Some(ext) = update.extensions.iter().find(|ext| &ext.id == ext_id) {
                     ui.label(format!("Repository: {}", ext.repository));
-                    ui.label(format!("Old commit: {}", ext.old_commit));
+                    if let Some(old_commit) = &ext.old_commit {
+                        ui.label(format!("Old commit: {}", old_commit));
+                    } else {
+                        ui.label("Old commit: none");
+                    }
                     ui.label(format!("New commit: {}", ext.new_commit));
                 }
             }
@@ -129,15 +134,17 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let mut delete_diffed_extension = false;
         if let Some(diffed_extension) = &self.state.diffed_extension.value {
-            let width = ctx.available_rect().width();
-            egui::SidePanel::left("sidebar")
+            egui::SidePanel::left("main_left")
                 .resizable(true)
-                .max_width(width * 0.3)
                 .show(ctx, |ui| {
                     ui.vertical(|ui| {
-                        if ui.button("Reset").clicked() {
-                            delete_diffed_extension = true;
-                        }
+                        ui.horizontal(|ui| {
+                            if ui.button("Reset").clicked() {
+                                delete_diffed_extension = true;
+                            }
+
+                            ui.label(&diffed_extension.id);
+                        });
 
                         ui.horizontal(|ui| {
                             let source_clicked = ui
@@ -159,6 +166,8 @@ impl eframe::App for App {
                             }
                         });
                     });
+
+                    ui.separator();
 
                     let diff = if self.state.view_type == ViewType::Source {
                         &diffed_extension.source_diff
@@ -182,10 +191,22 @@ impl eframe::App for App {
                     }
                 });
 
-            egui::CentralPanel::default().show(ctx, |ui| {
+            let frame = Frame::none().fill(components::BASE);
+
+            egui::CentralPanel::default().frame(frame).show(ctx, |ui| {
+                egui::SidePanel::left("diff_old")
+                    .frame(frame)
+                    .show_inside(ui, |ui| {
+                        egui::ScrollArea::both().auto_shrink(false).show(ui, |ui| {
+                            if let Some(diff) = &self.state.diff {
+                                components::diff(ui, &diff.old, false);
+                            }
+                        });
+                    });
+
                 egui::ScrollArea::both().auto_shrink(false).show(ui, |ui| {
                     if let Some(diff) = &self.state.diff {
-                        components::ansi(ui, diff);
+                        components::diff(ui, &diff.new, true);
                     }
                 });
             });
